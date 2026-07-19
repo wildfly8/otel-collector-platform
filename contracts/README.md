@@ -17,3 +17,18 @@ than copy files from a mutable branch.
 
 The platform may change internal implementation without a public contract
 release when externally observable behavior remains compatible.
+
+## Terminology
+
+"Producer" and "consumer" are used on two different axes:
+
+- **Telemetry data flow**: a *telemetry producer* is an application that emits
+  OTLP signals to this platform.
+- **Contract dependency**: a *contract consumer* is any service that pins a
+  released version of a contract published here; this platform is the
+  *contract publisher*.
+
+The same application is typically both: it produces telemetry while consuming
+the `otel-ingest` contract that governs how that telemetry must be shaped.
+Emitting telemetry never obligates an application to publish its own public
+contract — that obligation arises only when another service depends on it.

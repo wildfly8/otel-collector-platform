@@ -1,8 +1,8 @@
 schemaVersion: 1
 name: otel-ingest
-version: 1.0.0
+version: 1.0.1
 publisher: otel-collector-platform
-releaseTag: contracts/otel-ingest/v1.0.0
+releaseTag: contracts/otel-ingest/v1.0.1
 
 protocols:
   - name: otlp-http

@@ -37,7 +37,7 @@ GCP/Grafana provisioning from any one application's instrumentation.
 
 | Project | Relationship | Contract |
 |---------|--------------|----------|
-| Producer applications | consume the platform's versioned ingest contract; platform imports no producer spec | `contracts/public/otel-ingest@1.0.0` |
+| Producer applications | consume the platform's versioned ingest contract; platform imports no producer spec | `contracts/public/otel-ingest@1.0.1` |
 | Grafana Cloud | sole deployed storage/query backend | `contracts/backend-export.md` |
 | GCP | hosts the public HTTPS gateway | deployment contract |
 
@@ -163,7 +163,9 @@ then apply with operator credentials and verify authenticated public ingestion.
   destination.
 - **FR-007**: Collector self-telemetry MUST expose accepted and sent signal
   counters, receiver refusals, queue pressure, memory pressure, and exporter
-  failures using bounded labels; acceptance tests MUST prove each filter reason.
+  failures using bounded labels; acceptance tests MUST prove each **class** of
+  admission and sanitation reason (representative per class), because the stock
+  filter exposes no per-reason counter (INV-COL-007).
 - **FR-008**: Infrastructure plans MUST create no runtime or paid resource
   unless an operator explicitly enables it and supplies credentials.
 - **FR-009**: Cloud deployment MUST expose public HTTPS, authenticate producer

@@ -1,9 +1,10 @@
 # Published contracts
 
 `contracts/public/` is the only normative surface published for external
-services. Producer applications MUST pin a released semantic version of the
-`otel-ingest` contract and MUST NOT import this repository's `specs/`,
-collector configuration, infrastructure, or internal workflows.
+services. Telemetry-producer applications (contract *consumers*) MUST pin a
+released semantic version of the `contracts/public/otel-ingest` package and
+MUST NOT import this repository's `specs/`, collector configuration,
+infrastructure, or internal workflows.
 
 ## Available contracts
 

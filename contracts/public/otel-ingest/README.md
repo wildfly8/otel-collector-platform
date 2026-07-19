@@ -1,7 +1,7 @@
 # OTLP ingest contract
 
 **Contract**: `otel-ingest`  
-**Version**: `1.0.0`  
+**Version**: `1.0.1`  
 **Publisher**: OTel Collector Platform
 
 This package is the complete public specification surface consumed by
@@ -31,5 +31,5 @@ versioning:
 - **MINOR**: a backward-compatible capability or optional field.
 - **PATCH**: a clarification that does not alter producer or platform behavior.
 
-Until a registry exists, version `1.0.0` is published by repository tag
-`contracts/otel-ingest/v1.0.0`.
+Until a registry exists, version `1.0.1` is published by repository tag
+`contracts/otel-ingest/v1.0.1`.

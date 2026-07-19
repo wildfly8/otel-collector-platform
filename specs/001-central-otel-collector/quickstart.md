@@ -25,19 +25,24 @@ Stop any other stack using ports 4318, 13133, or 3002, then:
 docker compose up -d
 pwsh scripts/validate.ps1 -PostStart
 pwsh scripts/test-metric-policy.ps1
+pwsh scripts/test-signal-canary.ps1
+pwsh scripts/test-memory-load.ps1
 ```
 
 Expected: all five services are healthy; one valid metric is exported and
 eight invalid fixtures (missing/default/oversized service identity, excessive
 resource or datapoint attributes, datapoint or resource identity, and an
 oversized guarded value) are absent.
-Collector accepted/sent counters support aggregate drop inference.
+Collector accepted/sent counters support aggregate drop inference. The signal
+canary confirms traces and logs reach the backend with all sensitive
+attributes removed, and the memory/load test confirms the collector survives
+sustained load without OOM or restart.
 
 ## Producer integration
 
 Producer applications pin
-`contracts/public/otel-ingest@1.0.0` (release tag
-`contracts/otel-ingest/v1.0.0`) and configure against its API and data
+`contracts/public/otel-ingest@1.0.1` (release tag
+`contracts/otel-ingest/v1.0.1`) and configure against its API and data
 contracts. They MUST NOT import this repository's `specs/` or implementation
 files.
 

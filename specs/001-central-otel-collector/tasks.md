@@ -27,3 +27,13 @@
 - [X] T017 Align admission acceptance fixtures with the published oversized
   guarded-value behavior.
 
+## Phase 2: Convergence
+
+- [X] T018 Add an automated memory/load test (`scripts/test-memory-load.ps1`)
+  that drives sustained load and asserts no container OOM or restart with an
+  active, observable `memory_limiter` per SC-003 (Constitution V — Resource
+  Protection Ordering).
+- [X] T019 Add a cross-signal sanitation canary (`scripts/test-signal-canary.ps1`)
+  proving zero known sensitive attributes on exported **traces and logs** past
+  the platform boundary, not only metrics, per SC-004 and INV-COL-006.
+

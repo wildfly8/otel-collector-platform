@@ -27,5 +27,7 @@
 - [X] Terraform modules validate with disabled defaults.
 - [X] Local acceptance fixture exists.
 - [X] Public-contract package validation exists.
+- [X] Cross-signal sanitation canary exists (traces and logs; SC-004).
+- [X] Memory/load stability test exists (no OOM under sustained load; SC-003).
 - [ ] Live cloud apply requires operator credentials.
 

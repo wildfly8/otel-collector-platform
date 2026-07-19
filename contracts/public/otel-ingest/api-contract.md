@@ -12,6 +12,23 @@ payload for each signal:
 The deployed endpoint uses HTTPS. Local development uses loopback HTTP.
 OTLP/gRPC is not part of this contract.
 
+Standard OTLP SDK exporters take a **base endpoint** (for example
+`https://<gateway-host>`) and append `/v1/<signal>` themselves. Configure the
+base URL only; do not include `/v1/...` in the exporter endpoint, or the SDK
+will produce a doubled path.
+
+Requests MUST set the standard OTLP `Content-Type`:
+
+- `application/x-protobuf` for binary protobuf payloads;
+- `application/json` for OTLP/JSON payloads.
+
+Optional `Content-Encoding: gzip` request compression is accepted.
+
+The concrete gateway URL and the ingest token are per-deployment values
+provisioned out of band by the platform operator (see the repository README's
+cloud provisioning section). They are intentionally not part of this versioned
+contract.
+
 ## Authentication
 
 Every request MUST include:

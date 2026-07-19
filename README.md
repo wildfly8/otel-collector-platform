@@ -21,20 +21,21 @@ those artifacts and identifies itself with a non-empty `service.name`.
 ## Spec-driven development
 
 This repository follows Spec-Kit SDD. Governance lives in
-`.specify/memory/constitution.md` (v1.1.0): application neutrality, federated
+`.specify/memory/constitution.md` (v1.1.1): application neutrality, federated
 public contracts, privacy and cardinality bounds, memory-limiter-first /
 batch-last ordering, single backend, and plan-safe zero-cost infrastructure.
 There is no domain-compiler pipeline here (no `npm run domain:*`); quality
 gates include `scripts/check-public-contract.ps1`,
-`scripts/validate.ps1`, `terraform validate` in both `infra/` modules, and
-`scripts/test-metric-policy.ps1` — see the constitution's Quality Gates table.
+`scripts/validate.ps1`, `terraform validate` in both `infra/` modules,
+`scripts/test-metric-policy.ps1`, `scripts/test-signal-canary.ps1`, and
+`scripts/test-memory-load.ps1` — see the constitution's Quality Gates table.
 
 ## Producer contract
 
 Producer applications consume only the versioned
 [`otel-ingest` public contract](contracts/public/otel-ingest/README.md).
-Version `1.0.0` is identified by release tag
-`contracts/otel-ingest/v1.0.0`. Consumers pin a release; they do not copy or
+Version `1.0.1` is identified by release tag
+`contracts/otel-ingest/v1.0.1`. Consumers pin a release; they do not copy or
 import `specs/`, collector configuration, infrastructure, or private
 workflows. The platform likewise imports no producer domain specifications.
 

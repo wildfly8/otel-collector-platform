@@ -1,4 +1,11 @@
 <!-- Sync Impact Report
+- Version: 1.1.0 → 1.1.1
+- Added quality gates: Sanitation canary (`scripts/test-signal-canary.ps1`) and
+  load/OOM test (`scripts/test-memory-load.ps1`); gate count 6 → 7
+- Reworded FR-007 to representative-per-class admission proof (matches
+  INV-COL-007); closed SC-003 and SC-004 coverage
+- No principle added, removed, or redefined (PATCH)
+- Prior report (1.0.0 → 1.1.0):
 - Version: 1.0.0 → 1.1.0
 - Added principle: III. Federated Public Contracts
 - Renumbered principles: former III–VII → IV–VIII
@@ -144,10 +151,11 @@ the configuration-verification gates below; this constitution has precedence.
 | Public contract | Package shape, version consistency, links, and required normative sections | `scripts/check-public-contract.ps1` |
 | Config | Compose + collector config validate | `scripts/validate.ps1` (compose config + collector `validate` dry-run) |
 | Infra | Plan-safe Terraform validation, creation flags off | `terraform validate` in `infra/gcp` and `infra/grafana-cloud` |
-| Policy | Acceptance fixtures: valid metric exported; missing/default `service.name`, >16 attributes, forbidden identity, oversized values all dropped | `scripts/test-metric-policy.ps1` |
-| Runtime | Local five-service health (collector, Prometheus, Tempo, Loki, Grafana) | `scripts/validate.ps1` post-start checks |
+| Policy | Acceptance fixtures: valid metric exported; missing/default/oversized `service.name`, excessive resource/datapoint attributes, forbidden identity, oversized guarded values all dropped | `scripts/test-metric-policy.ps1` |
+| Sanitation | Cross-signal canary: traces and logs reach the backend with zero sensitive attributes (INV-COL-006, SC-004) | `scripts/test-signal-canary.ps1` |
+| Runtime | Local five-service health; sustained load causes no OOM or restart with `memory_limiter` active (SC-003) | `scripts/validate.ps1` post-start checks + `scripts/test-memory-load.ps1` |
 
-All six gates MUST pass from a clean checkout before merge (SC-005). Policy
+All seven gates MUST pass from a clean checkout before merge (SC-005). Policy
 changes to `collector/config.yaml` REQUIRE a corresponding fixture in
 `scripts/test-metric-policy.ps1` and a compatibility review of the public data
 contract. Every documented class of filter behavior is proven by acceptance
@@ -178,4 +186,4 @@ VII), application neutrality (Principle II), or the public-contract boundary
 `.specify/templates/` stay generic; project specifics live here and in
 `specs/`.
 
-**Version**: 1.1.0 | **Ratified**: 2026-07-18 | **Last Amended**: 2026-07-19
+**Version**: 1.1.1 | **Ratified**: 2026-07-18 | **Last Amended**: 2026-07-19

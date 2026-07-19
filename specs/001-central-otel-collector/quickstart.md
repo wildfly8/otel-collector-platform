@@ -1,0 +1,55 @@
+# Quickstart
+
+## Validate without cloud credentials
+
+```powershell
+Copy-Item .env.example .env
+pwsh scripts/check-public-contract.ps1
+pwsh scripts/validate.ps1
+
+cd infra/grafana-cloud
+terraform init
+terraform validate
+terraform plan
+
+cd ../gcp
+terraform init
+terraform validate
+```
+
+## Local policy acceptance
+
+Stop any other stack using ports 4318, 13133, or 3002, then:
+
+```powershell
+docker compose up -d
+pwsh scripts/validate.ps1 -PostStart
+pwsh scripts/test-metric-policy.ps1
+```
+
+Expected: all five services are healthy; one valid metric is exported and
+eight invalid fixtures (missing/default/oversized service identity, excessive
+resource or datapoint attributes, datapoint or resource identity, and an
+oversized guarded value) are absent.
+Collector accepted/sent counters support aggregate drop inference.
+
+## Producer integration
+
+Producer applications pin
+`contracts/public/otel-ingest@1.0.0` (release tag
+`contracts/otel-ingest/v1.0.0`) and configure against its API and data
+contracts. They MUST NOT import this repository's `specs/` or implementation
+files.
+
+## Cloud
+
+1. Apply `infra/grafana-cloud` with `enable_stack=true`.
+2. Apply `infra/gcp` with `enable_foundation=true` to create Artifact Registry.
+3. Authenticate Docker to the regional registry, build this repository's
+   `Dockerfile`, tag with an immutable version, and push.
+4. Set `collector_image` to that immutable URI, set `enable_runtime=true`, and
+   apply the runtime.
+5. Configure each producer using `producer_environment_hint`.
+
+Never commit `.tfvars`, state, `.env`, or tokens.
+

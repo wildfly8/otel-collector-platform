@@ -1,0 +1,58 @@
+groups:
+  - name: otel-collector-platform
+    interval: 1m
+    rules:
+      # Stock filter processor has no reason-labelled drop counter. After batch
+      # settling, accepted - sent is the aggregate policy/backpressure gap.
+      - record: platform:otel_metric_points:accepted_minus_sent_5m
+        expr: |
+          clamp_min(
+            sum(increase(otelcol_receiver_accepted_metric_points[5m]))
+            -
+            sum(increase(otelcol_exporter_sent_metric_points[5m])),
+            0
+          )
+
+      - alert: OTelCollectorMetricPointsDropped
+        expr: platform:otel_metric_points:accepted_minus_sent_5m > 0
+        for: 2m
+        labels:
+          severity: warning
+          service: otel-collector-platform
+        annotations:
+          summary: "Collector accepted more metric points than it exported."
+          description: "Inspect admission fixtures, memory pressure, queue state, and exporter failures. The stock filter does not label drop reasons."
+
+      - alert: OTelCollectorExporterFailures
+        expr: |
+          sum(increase({__name__=~"otelcol_exporter_send_failed_(spans|metric_points|log_records)"}[5m])) > 0
+        for: 1m
+        labels:
+          severity: critical
+          service: otel-collector-platform
+        annotations:
+          summary: "Collector failed to export telemetry."
+
+      - alert: OTelCollectorReceiverRefusals
+        expr: |
+          sum(increase({__name__=~"otelcol_receiver_refused_(spans|metric_points|log_records)"}[5m])) > 0
+        for: 1m
+        labels:
+          severity: warning
+          service: otel-collector-platform
+        annotations:
+          summary: "Collector refused telemetry before policy processing."
+
+      # Local approximation of backend active-series pressure. Cloud operators
+      # publish the same threshold in the hosted ruler and tune it below their
+      # plan's series limit.
+      - alert: OTelPlatformActiveSeriesBudgetHigh
+        expr: count({job="otel-signals"}) > 8000
+        for: 10m
+        labels:
+          severity: warning
+          service: otel-collector-platform
+        annotations:
+          summary: "Telemetry active series exceed the 8,000-series warning budget."
+          description: "Inspect service and metric dimensions before approaching a 10,000-series free-plan limit."
+

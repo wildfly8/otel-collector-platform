@@ -1,0 +1,16 @@
+schemaVersion: 1
+service: otel-collector-platform
+
+# This service publishes contracts but consumes no external service contracts.
+# Grafana Cloud and GCP are runtime infrastructure dependencies governed by
+# internal design/deployment contracts, not imported domain specifications.
+dependencies: []
+
+publishes:
+  - name: otel-ingest
+    version: 1.0.0
+    path: contracts/public/otel-ingest
+    surfaces:
+      - api
+      - data
+      - capability

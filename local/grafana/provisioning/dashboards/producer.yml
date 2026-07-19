@@ -1,0 +1,14 @@
+apiVersion: 1
+
+providers:
+  - name: Producer applications
+    orgId: 1
+    folder: Producer applications
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: false
+    options:
+      path: /var/lib/grafana/producer
+      foldersFromFilesStructure: false
+

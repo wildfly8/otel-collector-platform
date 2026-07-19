@@ -1,0 +1,9 @@
+.git
+.terraform
+**/.terraform
+*.tfstate
+*.tfvars
+.env
+local/producer
+specs
+

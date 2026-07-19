@@ -1,0 +1,19 @@
+schemaVersion: 1
+name: otel-ingest
+version: 1.0.0
+publisher: otel-collector-platform
+releaseTag: contracts/otel-ingest/v1.0.0
+
+protocols:
+  - name: otlp-http
+    signals:
+      - traces
+      - metrics
+      - logs
+
+surfaces:
+  api: api-contract.md
+  data: data-contract.md
+  capability: capability.md
+
+compatibility: semver

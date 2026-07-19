@@ -1,0 +1,9 @@
+# Safe default: no stack or credentials are created.
+enable_stack = false
+
+# enable_stack              = true
+# cloud_access_policy_token = "glc_..."
+# stack_name                = "otel-platform"
+# stack_slug                = "otelplatform"
+# region_slug               = "prod-us-east-0"
+

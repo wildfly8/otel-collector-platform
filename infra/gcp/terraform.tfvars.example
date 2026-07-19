@@ -1,0 +1,18 @@
+project_id = "your-gcp-project-id"
+region     = "us-central1"
+
+# Safe default: no APIs, repository, secrets, or runtime are created.
+enable_foundation = false
+enable_runtime = false
+
+# First enable the foundation, apply, then push the image:
+# enable_foundation              = true
+#
+# After the image exists, enable the runtime:
+# enable_runtime                 = true
+# collector_image                = "us-central1-docker.pkg.dev/PROJECT/otel-collector/collector:0.1.0"
+# ingest_bearer_token            = "replace-with-32+-byte-secret"
+# grafana_cloud_otlp_endpoint    = "https://otlp-gateway-ZONE.grafana.net/otlp"
+# grafana_cloud_instance_id      = "instance-id"
+# grafana_cloud_token            = "write-token"
+

@@ -6,23 +6,26 @@ variable "cloud_access_policy_token" {
 }
 
 variable "enable_stack" {
-  description = "Create the Grafana Cloud stack and credentials."
+  description = "Look up the existing Grafana Cloud stack (stack_slug) and provision platform credentials."
   type        = bool
   default     = false
 }
 
-variable "stack_name" {
-  type    = string
-  default = "otel-platform"
+variable "stack_slug" {
+  description = "Existing Grafana Cloud stack slug (e.g. microguava1468)."
+  type        = string
+  default     = "otelplatform"
 }
 
-variable "stack_slug" {
-  type    = string
-  default = "otelplatform"
+variable "stack_id" {
+  description = "Existing stack ID from Grafana Cloud portal. When set, skips stacks:read API lookup."
+  type        = string
+  default     = ""
 }
 
 variable "region_slug" {
-  type    = string
-  default = "prod-us-east-0"
+  description = "Stack region (required when stack_id is set). Ignored when stack is looked up via API."
+  type        = string
+  default     = "prod-us-east-0"
 }
 

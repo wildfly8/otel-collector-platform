@@ -1,9 +1,9 @@
-# Safe default: no stack or credentials are created.
+# Safe default: no credentials are created.
 enable_stack = false
 
 # enable_stack              = true
 # cloud_access_policy_token = "glc_..."
-# stack_name                = "otel-platform"
-# stack_slug                = "otelplatform"
-# region_slug               = "prod-us-east-0"
+# stack_slug                = "your-existing-stack-slug"
+# stack_id                  = "123456" # from Grafana Cloud portal; skips stacks:read lookup
+# region_slug               = "prod-us-west-0"
 

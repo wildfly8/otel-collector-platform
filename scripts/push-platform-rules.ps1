@@ -34,7 +34,7 @@ $base = if ($DryRun) {
 } else {
   $env:GRAFANA_CLOUD_PROM_URL.TrimEnd('/')
 }
-$uri = "$base/config/v1/rules/otel-collector-platform"
+$uri = "$base/prometheus/config/v1/rules/otel-collector-platform"
 
 if ($DryRun) {
   Write-Host "[dry-run] POST $uri"
@@ -49,7 +49,8 @@ Invoke-WebRequest `
   -Uri $uri `
   -Headers @{ Authorization = "Basic $auth" } `
   -ContentType 'application/yaml' `
-  -Body $body | Out-Null
+  -Body $body `
+  -UseBasicParsing | Out-Null
 
 Write-Host 'Published platform recording and alert rules.'
 

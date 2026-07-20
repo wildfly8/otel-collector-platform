@@ -95,3 +95,20 @@ lifecycle so batching/export can complete outside an inbound request. The
 deployment is designed to fit free allotments at low volume, but infrastructure
 automation cannot truthfully guarantee a $0 bill; budgets and usage alerts are
 mandatory safeguards.
+
+## Cloud provisioning script
+
+Local `infra/*/terraform.tfvars` files (gitignored) are scaffolded with
+placeholders. After you set real values, run phases in order:
+
+```powershell
+pwsh scripts/provision-cloud.ps1 -Phase check
+pwsh scripts/provision-cloud.ps1 -Phase grafana
+pwsh scripts/provision-cloud.ps1 -Phase gcp-foundation
+pwsh scripts/provision-cloud.ps1 -Phase image
+pwsh scripts/provision-cloud.ps1 -Phase gcp-runtime
+pwsh scripts/provision-cloud.ps1 -Phase rules
+```
+
+See `specs/001-central-otel-collector/quickstart.md` for placeholder fields and
+prerequisites (`gcloud`, Grafana Cloud Portal token, GCP project id).

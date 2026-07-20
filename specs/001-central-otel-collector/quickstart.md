@@ -58,3 +58,25 @@ files.
 
 Never commit `.tfvars`, state, `.env`, or tokens.
 
+## Cloud provisioning (scripted)
+
+Create local tfvars (gitignored) and run phases after replacing placeholders:
+
+```powershell
+# 1) Edit infra/grafana-cloud/terraform.tfvars — set cloud_access_policy_token
+# 2) Edit infra/gcp/terraform.tfvars — set project_id
+pwsh scripts/provision-cloud.ps1 -Phase check
+
+# Plan or apply in order:
+pwsh scripts/provision-cloud.ps1 -Phase grafana        # stack + OTLP credentials
+pwsh scripts/provision-cloud.ps1 -Phase gcp-foundation # Artifact Registry + APIs
+pwsh scripts/provision-cloud.ps1 -Phase image          # docker build + push
+pwsh scripts/provision-cloud.ps1 -Phase gcp-runtime    # Cloud Run + secrets
+pwsh scripts/provision-cloud.ps1 -Phase rules          # platform recording/alerts
+
+# Or plan-only:
+pwsh scripts/provision-cloud.ps1 -Phase all -PlanOnly
+```
+
+The script auto-generates a local `ingest_bearer_token` and syncs Grafana OTLP outputs into `infra/gcp/terraform.tfvars` after the Grafana apply.
+

@@ -1,13 +1,13 @@
 output "stack_url" {
-  value = try(grafana_cloud_stack.platform[0].url, null)
+  value = var.enable_stack ? local.stack_url : null
 }
 
 output "otlp_gateway_hint" {
-  value = var.enable_stack ? "https://otlp-gateway-${var.region_slug}.grafana.net/otlp" : null
+  value = var.enable_stack ? "https://otlp-gateway-${local.region_slug}.grafana.net/otlp" : null
 }
 
 output "otlp_instance_id" {
-  value = try(grafana_cloud_stack.platform[0].id, null)
+  value = var.enable_stack ? local.stack_id : null
 }
 
 output "otlp_write_token" {
@@ -26,10 +26,10 @@ output "producer_provisioner_token" {
 }
 
 output "prometheus_url" {
-  value = try(grafana_cloud_stack.platform[0].prometheus_url, null)
+  value = var.enable_stack && var.stack_id == "" ? try(data.grafana_cloud_stack.platform[0].prometheus_url, null) : null
 }
 
 output "prometheus_user_id" {
-  value = try(grafana_cloud_stack.platform[0].prometheus_user_id, null)
+  value = var.enable_stack && var.stack_id == "" ? try(data.grafana_cloud_stack.platform[0].prometheus_user_id, null) : null
 }
 

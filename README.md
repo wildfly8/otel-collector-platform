@@ -13,7 +13,8 @@ those artifacts and identifies itself with a non-empty `service.name`.
 
 - `collector/` — generic collector configuration and policy.
 - `contracts/public/` — versioned contracts published to producer services.
-- `compose.yaml` — loopback-only local LGTM development stack.
+- `compose.yaml` — legacy Compose manifest (reference; use `k3s/` for local dev).
+- `k3s/` — default local k3d/k3s LGTM stack (`scripts/local-up.ps1`).
 - `infra/gcp/` — Cloud Run deployment infrastructure.
 - `infra/grafana-cloud/` — Grafana Cloud stack and platform credentials.
 - `specs/001-central-otel-collector/` — Feature 001 specification and design.
@@ -27,8 +28,9 @@ batch-last ordering, single backend, and plan-safe zero-cost infrastructure.
 There is no domain-compiler pipeline here (no `npm run domain:*`); quality
 gates include `scripts/check-public-contract.ps1`,
 `scripts/validate.ps1`, `terraform validate` in both `infra/` modules,
-`scripts/test-metric-policy.ps1`, `scripts/test-signal-canary.ps1`, and
-`scripts/test-memory-load.ps1` — see the constitution's Quality Gates table.
+`scripts/run-e2e-local.ps1` (or individual `scripts/test-*.ps1` wrappers),
+and optional `scripts/run-e2e-cloud.ps1` after cloud provisioning — see the
+constitution's Quality Gates table.
 
 ## Producer contract
 
@@ -57,9 +59,12 @@ acceptance fixtures to verify each policy reason.
 
 ```powershell
 Copy-Item .env.example .env
-docker compose up -d
+pwsh scripts/local-up.ps1
 pwsh scripts/validate.ps1 -PostStart
 ```
+
+`local-up.ps1` stops any running Compose stack for this repo, then starts k3d/k3s.
+See `k3s/README.md` for details.
 
 Local endpoints:
 
@@ -68,8 +73,8 @@ Local endpoints:
 - Grafana: `http://127.0.0.1:3002`
 
 Producer repositories may copy app-owned Prometheus rule YAML and dashboard
-JSON into ignored `local/producer/`. Compose mounts that directory read-only;
-the platform repository never versions those product artifacts.
+JSON into ignored `local/producer/`. The k3s stack mounts an empty producer
+rules placeholder; the platform repository never versions those product artifacts.
 
 ## Cloud provisioning order
 
@@ -108,7 +113,18 @@ pwsh scripts/provision-cloud.ps1 -Phase gcp-foundation
 pwsh scripts/provision-cloud.ps1 -Phase image
 pwsh scripts/provision-cloud.ps1 -Phase gcp-runtime
 pwsh scripts/provision-cloud.ps1 -Phase rules
+pwsh scripts/provision-cloud.ps1 -Phase e2e-dashboard   # Grafana E2E dashboard
+pwsh scripts/provision-cloud.ps1 -Phase e2e-cloud
 ```
 
 See `specs/001-central-otel-collector/quickstart.md` for placeholder fields and
 prerequisites (`gcloud`, Grafana Cloud Portal token, GCP project id).
+
+## E2E test suites
+
+| Target | Command |
+|--------|---------|
+| Local collector + local LGTM (Compose) | `pwsh scripts/run-e2e-local.ps1` |
+| Cloud Run + Grafana Cloud LGTM | `pwsh scripts/run-e2e-cloud.ps1` |
+
+Details: `scripts/e2e/README.md`.

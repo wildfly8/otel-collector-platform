@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  labels:
+    app: otel-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-collector
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+    spec:
+      containers:
+        - name: otel-collector
+          image: otel/opentelemetry-collector-contrib:0.156.0
+          args:
+            - --config=/etc/otelcol/config.yaml
+            - --config=/etc/otelcol/local-overrides.yaml
+          ports:
+            - containerPort: 4318
+            - containerPort: 13133
+            - containerPort: 9464
+            - containerPort: 8888
+          env:
+            - name: OTEL_COLLECTOR_BEARER_TOKEN
+              value: local-platform-token-32-characters
+            - name: GRAFANA_CLOUD_OTLP_ENDPOINT
+              value: https://unused.invalid/otlp
+            - name: GRAFANA_CLOUD_INSTANCE_ID
+              value: unused
+            - name: GRAFANA_CLOUD_TOKEN
+              value: unused
+            - name: GRAFANA_CLOUD_AUTH_HEADER
+              value: "Basic dW51c2VkOnVudXNlZA=="
+          volumeMounts:
+            - name: config
+              mountPath: /etc/otelcol
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 13133
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["/otelcol-contrib", "--version"]
+            initialDelaySeconds: 10
+            periodSeconds: 20
+      volumes:
+        - name: config
+          configMap:
+            name: collector-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  labels:
+    app: otel-collector
+spec:
+  type: LoadBalancer
+  selector:
+    app: otel-collector
+  ports:
+    - name: otlp-http
+      port: 4318
+      targetPort: 4318
+    - name: health
+      port: 13133
+      targetPort: 13133
+    - name: metrics
+      port: 9464
+      targetPort: 9464
+    - name: internal
+      port: 8888
+      targetPort: 8888

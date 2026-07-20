@@ -110,8 +110,9 @@ one well-understood policy over per-producer special cases.
 
 - **Collector**: `otel/opentelemetry-collector-contrib:0.156.0` (pinned;
   upgrades are deliberate, validated changes)
-- **Local stack**: Docker Compose — collector, Prometheus, Tempo, Loki,
-  Grafana (LGTM), loopback-only, 7-day local retention
+- **Local stack**: k3d/k3s (`k3s/` manifests) — collector, Prometheus, Tempo,
+  Loki, Grafana (LGTM), loopback-only, 7-day local retention. `compose.yaml`
+  remains as a legacy reference.
 - **Cloud**: Terraform `hashicorp/google ~> 6.0` (Cloud Run, Artifact
   Registry, Secret Manager) and `grafana/grafana ~> 4.0` (Grafana Cloud
   stack, access policies, tokens)
@@ -149,11 +150,12 @@ the configuration-verification gates below; this constitution has precedence.
 |-------|------|---------|
 | Spec | Manual review: Summary, Domain Mapping, `INV-COL-*`, Saga present; neutrality (Principle II) upheld | editorial |
 | Public contract | Package shape, version consistency, links, and required normative sections | `scripts/check-public-contract.ps1` |
-| Config | Compose + collector config validate | `scripts/validate.ps1` (compose config + collector `validate` dry-run) |
+| Config | k3s kustomize + collector config validate | `scripts/validate.ps1` (kustomize build + collector `validate` dry-run) |
 | Infra | Plan-safe Terraform validation, creation flags off | `terraform validate` in `infra/gcp` and `infra/grafana-cloud` |
 | Policy | Acceptance fixtures: valid metric exported; missing/default/oversized `service.name`, excessive resource/datapoint attributes, forbidden identity, oversized guarded values all dropped | `scripts/test-metric-policy.ps1` |
 | Sanitation | Cross-signal canary: traces and logs reach the backend with zero sensitive attributes (INV-COL-006, SC-004) | `scripts/test-signal-canary.ps1` |
-| Runtime | Local five-service health; sustained load causes no OOM or restart with `memory_limiter` active (SC-003) | `scripts/validate.ps1` post-start checks + `scripts/test-memory-load.ps1` |
+| Runtime | Local five-service health; sustained load causes no OOM or restart with `memory_limiter` active (SC-003) | `scripts/validate.ps1` post-start checks + `scripts/test-memory-load.ps1` (via `scripts/run-e2e-local.ps1`) |
+| Cloud export | OTLP ingest on Cloud Run; metrics/logs/traces queryable in Grafana Cloud LGTM | `scripts/run-e2e-cloud.ps1` (post-provision; not required for local-only merge) |
 
 All seven gates MUST pass from a clean checkout before merge (SC-005). Policy
 changes to `collector/config.yaml` REQUIRE a corresponding fixture in
@@ -169,7 +171,7 @@ test, not assumed (INV-COL-007).
 | 2 | `contracts/public/<name>/` | Versioned externally observable producer contract |
 | 3 | `specs/NNN-*/spec.md` | Internal domain theory — FR/SC, `INV-COL-*`, Saga |
 | 4 | `specs/NNN-*/plan.md`, `research.md`, `contracts/` | Internal technical approach and design contracts |
-| 5 | `collector/`, `infra/`, `compose.yaml`, `scripts/` | Implementation and executable evidence |
+| 5 | `collector/`, `infra/`, `k3s/`, `compose.yaml`, `scripts/` | Implementation and executable evidence |
 
 When internal theory conflicts with a published producer promise, the public
 contract governs compatibility until a properly versioned release changes it.

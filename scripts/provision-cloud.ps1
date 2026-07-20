@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-  [ValidateSet('check', 'grafana', 'gcp-foundation', 'image', 'gcp-runtime', 'rules', 'all')]
+  [ValidateSet('check', 'grafana', 'gcp-foundation', 'image', 'gcp-runtime', 'rules', 'e2e-dashboard', 'e2e-cloud', 'all')]
   [string]$Phase = 'check',
   [switch]$PlanOnly,
   [switch]$Force
@@ -248,6 +248,30 @@ function Invoke-Rules {
   & (Join-Path $PSScriptRoot 'push-platform-rules.ps1')
 }
 
+function Invoke-E2EDashboard {
+  if ($PlanOnly) {
+    & (Join-Path $PSScriptRoot 'push-e2e-dashboard.ps1') -DryRun
+    return
+  }
+  Push-Location $grafanaDir
+  try {
+    if (-not $env:GRAFANA_STACK_URL) {
+      $env:GRAFANA_STACK_URL = terraform output -raw stack_url
+    }
+    if (-not $env:GRAFANA_CLOUD_API_TOKEN) {
+      $env:GRAFANA_CLOUD_API_TOKEN = terraform output -raw producer_provisioner_token
+    }
+  }
+  finally {
+    Pop-Location
+  }
+  & (Join-Path $PSScriptRoot 'push-e2e-dashboard.ps1')
+}
+
+function Invoke-E2ECloud {
+  & (Join-Path $PSScriptRoot 'run-e2e-cloud.ps1')
+}
+
 Ensure-Tfvars
 
 switch ($Phase) {
@@ -257,6 +281,8 @@ switch ($Phase) {
   'image' { Invoke-Image }
   'gcp-runtime' { Invoke-GcpRuntime }
   'rules' { Invoke-Rules }
+  'e2e-dashboard' { Invoke-E2EDashboard }
+  'e2e-cloud' { Invoke-E2ECloud }
   'all' {
     Invoke-Check
     if (-not $PlanOnly) {
@@ -265,6 +291,8 @@ switch ($Phase) {
       Invoke-Image
       Invoke-GcpRuntime
       Invoke-Rules
+      Invoke-E2EDashboard
+      Invoke-E2ECloud
     }
     else {
       Write-Host 'Plan-only: run individual phases after filling terraform.tfvars placeholders.'
@@ -273,6 +301,7 @@ switch ($Phase) {
       Invoke-Image
       Invoke-GcpRuntime
       Invoke-Rules
+      Invoke-E2EDashboard
     }
   }
 }

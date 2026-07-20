@@ -85,3 +85,25 @@ resource "grafana_cloud_stack_service_account_token" "producer_provisioner" {
   name               = "producer-observability-provisioner-key"
   service_account_id = grafana_cloud_stack_service_account.producer_provisioner[0].id
 }
+
+# Read-only credential for cloud E2E verification (Prometheus, Loki, Tempo query APIs).
+resource "grafana_cloud_access_policy" "e2e_query" {
+  count = var.enable_stack ? 1 : 0
+
+  name   = "${var.stack_slug}-e2e-query"
+  region = local.region_slug
+  scopes = ["metrics:read", "logs:read", "traces:read"]
+
+  realm {
+    type       = "stack"
+    identifier = local.stack_id
+  }
+}
+
+resource "grafana_cloud_access_policy_token" "e2e_query" {
+  count = var.enable_stack ? 1 : 0
+
+  region           = local.region_slug
+  access_policy_id = grafana_cloud_access_policy.e2e_query[0].policy_id
+  name             = "${var.stack_slug}-e2e-query-token"
+}

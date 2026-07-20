@@ -33,3 +33,16 @@ output "prometheus_user_id" {
   value = var.enable_stack && var.stack_id == "" ? try(data.grafana_cloud_stack.platform[0].prometheus_user_id, null) : null
 }
 
+output "logs_url" {
+  value = var.enable_stack && var.stack_id == "" ? try(data.grafana_cloud_stack.platform[0].logs_url, null) : null
+}
+
+output "traces_url" {
+  value = var.enable_stack && var.stack_id == "" ? try(data.grafana_cloud_stack.platform[0].traces_url, null) : null
+}
+
+output "e2e_query_token" {
+  value     = try(grafana_cloud_access_policy_token.e2e_query[0].token, null)
+  sensitive = true
+}
+

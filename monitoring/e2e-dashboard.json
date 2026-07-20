@@ -1,0 +1,174 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "panels": [
+    {
+      "gridPos": { "h": 5, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "code": { "language": "markdown", "showLineNumbers": false, "showMiniMap": false },
+        "content": "## Platform cloud E2E telemetry\n\nSignals from `scripts/run-e2e-cloud.ps1`.\n\n**Cloud Run ingest (HTTP 200)** is in GCP Console -> Cloud Run -> Logs (`resource.type=cloud_run_revision`).\n\n| Signal | `service.name` | Lookup |\n|--------|----------------|--------|\n| Metrics | `e2e-metrics` | `cloud_e2e_export_total` |\n| Traces | `e2e-traces` | span `e2e-span` |\n| Logs | `e2e-logs` | `e2e log` in body |\n\nStat panels show the **latest counter value** (E2E runs are sparse; run `scripts/run-e2e-cloud.ps1` to refresh).",
+        "mode": "markdown"
+      },
+      "title": "About",
+      "type": "text"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PROM_DS_UID" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 12, "x": 0, "y": 5 },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "PROM_DS_UID" },
+          "expr": "max(last_over_time(cloud_e2e_export_total{service_name=\"e2e-metrics\"}[$__range]))",
+          "instant": true,
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "E2E metric counter (latest)",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "LOKI_DS_UID" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 12, "x": 12, "y": 5 },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "LOKI_DS_UID" },
+          "expr": "sum(count_over_time({service_name=\"e2e-logs\"} |= \"e2e log\" [$__range]))",
+          "refId": "A"
+        }
+      ],
+      "title": "E2E log lines",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PROM_DS_UID" },
+      "fieldConfig": {
+        "defaults": { "custom": { "drawStyle": "line", "lineWidth": 1 } },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 9 },
+      "id": 5,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "PROM_DS_UID" },
+          "expr": "max_over_time(cloud_e2e_export_total{service_name=\"e2e-metrics\"}[$__interval])",
+          "legendFormat": "cloud_e2e_export_total",
+          "refId": "A"
+        }
+      ],
+      "title": "E2E metric counter",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "LOKI_DS_UID" },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 17 },
+      "id": 7,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "LOKI_DS_UID" },
+          "expr": "{service_name=\"e2e-logs\"} |= \"e2e log\"",
+          "refId": "A"
+        }
+      ],
+      "title": "E2E logs (Loki)",
+      "type": "logs"
+    },
+    {
+      "datasource": { "type": "tempo", "uid": "TEMPO_DS_UID" },
+      "fieldConfig": {
+        "defaults": { "custom": { "align": "auto", "displayMode": "auto" } },
+        "overrides": []
+      },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 27 },
+      "id": 8,
+      "options": {
+        "footer": { "countRows": true, "reducer": ["count"], "show": true },
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "Start time" }]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "tempo", "uid": "TEMPO_DS_UID" },
+          "limit": 20,
+          "query": "{ resource.service.name = \"e2e-traces\" }",
+          "queryType": "traceql",
+          "refId": "A",
+          "tableType": "traces"
+        }
+      ],
+      "title": "E2E traces (Tempo)",
+      "type": "table"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["e2e", "platform", "otel-collector-platform"],
+  "templating": { "list": [] },
+  "time": { "from": "now-7d", "to": "now" },
+  "timezone": "browser",
+  "title": "Platform E2E (Cloud Run → Grafana Cloud)",
+  "uid": "platform-e2e-cloud",
+  "version": 0
+}

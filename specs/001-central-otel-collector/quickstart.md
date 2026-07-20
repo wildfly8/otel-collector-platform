@@ -19,10 +19,17 @@ terraform validate
 
 ## Local policy acceptance
 
-Stop any other stack using ports 4318, 13133, or 3002, then:
+Requires [k3d](https://k3d.io/) and `kubectl`. `local-up.ps1` stops Compose and
+starts the k3s stack on ports 4318, 13133, and 3002:
 
 ```powershell
-docker compose up -d
+pwsh scripts/local-up.ps1
+pwsh scripts/run-e2e-local.ps1
+```
+
+Equivalent individual gates (constitution wrappers):
+
+```powershell
 pwsh scripts/validate.ps1 -PostStart
 pwsh scripts/test-metric-policy.ps1
 pwsh scripts/test-signal-canary.ps1
@@ -73,6 +80,7 @@ pwsh scripts/provision-cloud.ps1 -Phase gcp-foundation # Artifact Registry + API
 pwsh scripts/provision-cloud.ps1 -Phase image          # docker build + push
 pwsh scripts/provision-cloud.ps1 -Phase gcp-runtime    # Cloud Run + secrets
 pwsh scripts/provision-cloud.ps1 -Phase rules          # platform recording/alerts
+pwsh scripts/provision-cloud.ps1 -Phase e2e-cloud      # Cloud Run + Grafana LGTM E2E
 
 # Or plan-only:
 pwsh scripts/provision-cloud.ps1 -Phase all -PlanOnly

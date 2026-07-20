@@ -1,0 +1,62 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: otel-platform
+
+resources:
+  - namespace.yaml
+  - prometheus.yaml
+  - tempo.yaml
+  - loki.yaml
+  - grafana.yaml
+  - otel-collector.yaml
+
+configMapGenerator:
+  - name: collector-config
+    options:
+      disableNameSuffixHash: true
+    files:
+      - config.yaml=../collector/config.yaml
+      - local-overrides.yaml=../collector/local-overrides.yaml
+
+  - name: prometheus-config
+    options:
+      disableNameSuffixHash: true
+    files:
+      - prometheus.yml=../local/prometheus.yml
+
+  - name: prometheus-platform-rules
+    options:
+      disableNameSuffixHash: true
+    files:
+      - platform-rules.yml=../monitoring/platform-rules.yml
+
+  - name: prometheus-producer-rules
+    options:
+      disableNameSuffixHash: true
+    files:
+      - empty.yml=producer-rules-empty.yml
+
+  - name: tempo-config
+    options:
+      disableNameSuffixHash: true
+    files:
+      - tempo.yaml=../local/tempo.yaml
+
+  - name: loki-config
+    options:
+      disableNameSuffixHash: true
+    files:
+      - loki.yaml=../local/loki.yaml
+
+  - name: grafana-datasources
+    options:
+      disableNameSuffixHash: true
+    files:
+      - datasources.yml=../local/grafana/provisioning/datasources/datasources.yml
+
+  - name: grafana-dashboards
+    options:
+      disableNameSuffixHash: true
+    files:
+      - dashboards.yml=../local/grafana/provisioning/dashboards/producer.yml

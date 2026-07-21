@@ -14,9 +14,25 @@ if (Get-Command kubectl -ErrorAction SilentlyContinue) {
 }
 
 if ($DeleteCluster -or -not $KeepCluster) {
+  $deleted = $false
   if (Get-Command k3d -ErrorAction SilentlyContinue) {
     k3d cluster delete $ClusterName 2>$null
+    $deleted = $true
     Write-Host "Deleted k3d cluster '$ClusterName'."
+  }
+  elseif (Get-Command docker -ErrorAction SilentlyContinue) {
+    $prefix = "k3d-$ClusterName"
+    $containers = @(docker ps -a --filter "name=$prefix" --format '{{.Names}}' 2>$null)
+    if ($containers.Count -gt 0) {
+      docker rm -f @containers 2>$null | Out-Null
+      docker network rm $prefix 2>$null | Out-Null
+      docker volume rm "$prefix-images" 2>$null | Out-Null
+      $deleted = $true
+      Write-Host "Removed k3d cluster '$ClusterName' via Docker (k3d CLI not on PATH)."
+    }
+  }
+  if (-not $deleted) {
+    Write-Host "No k3d cluster '$ClusterName' found to delete."
   }
 }
 else {

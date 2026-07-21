@@ -1,5 +1,8 @@
 <!-- Sync Impact Report
-- Version: 1.1.0 → 1.1.1
+- Version: 1.1.1 → 1.1.2
+- Clarified Principle VI local backend: k3s/k3d default (`k3s/`); `compose.yaml`
+  legacy reference only (PATCH)
+- Prior report (1.1.0 → 1.1.1):
 - Added quality gates: Sanitation canary (`scripts/test-signal-canary.ps1`) and
   load/OOM test (`scripts/test-memory-load.ps1`); gate count 6 → 7
 - Reworded FR-007 to representative-per-class admission proof (matches
@@ -86,8 +89,8 @@ OOM (SC-003).
 ### VI. Single Backend, No Fan-Out
 Deployed telemetry exports to **exactly one** backend destination (free-tier
 Grafana Cloud OTLP gateway). Local development exports only to the loopback
-LGTM stack in `compose.yaml`. Adding a second deployed destination is a
-constitutional amendment, not a config tweak.
+LGTM stack (`k3s/` via k3d; `compose.yaml` is legacy reference). Adding a
+second deployed destination is a constitutional amendment, not a config tweak.
 
 ### VII. Zero-Cost, Plan-Safe Infrastructure
 The deployed host MUST stay within always-free allotments: GCP **Cloud Run**
@@ -188,4 +191,4 @@ VII), application neutrality (Principle II), or the public-contract boundary
 `.specify/templates/` stay generic; project specifics live here and in
 `specs/`.
 
-**Version**: 1.1.1 | **Ratified**: 2026-07-18 | **Last Amended**: 2026-07-19
+**Version**: 1.1.2 | **Ratified**: 2026-07-18 | **Last Amended**: 2026-07-20

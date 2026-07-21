@@ -22,7 +22,7 @@ those artifacts and identifies itself with a non-empty `service.name`.
 ## Spec-driven development
 
 This repository follows Spec-Kit SDD. Governance lives in
-`.specify/memory/constitution.md` (v1.1.1): application neutrality, federated
+`.specify/memory/constitution.md` (v1.1.2): application neutrality, federated
 public contracts, privacy and cardinality bounds, memory-limiter-first /
 batch-last ordering, single backend, and plan-safe zero-cost infrastructure.
 There is no domain-compiler pipeline here (no `npm run domain:*`); quality
@@ -124,7 +124,7 @@ prerequisites (`gcloud`, Grafana Cloud Portal token, GCP project id).
 
 | Target | Command |
 |--------|---------|
-| Local collector + local LGTM (Compose) | `pwsh scripts/run-e2e-local.ps1` |
+| Local collector + local LGTM (k3s) | `pwsh scripts/run-e2e-local.ps1` |
 | Cloud Run + Grafana Cloud LGTM | `pwsh scripts/run-e2e-cloud.ps1` |
 
 Details: `scripts/e2e/README.md`.

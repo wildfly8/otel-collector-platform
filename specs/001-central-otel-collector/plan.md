@@ -33,14 +33,25 @@ internal design artifacts and redirects; producers do not consume them.
 - CPU remains available for the instance lifecycle because queues and timers
   continue after the OTLP handler returns.
 
+## Local runtime
+
+Default local stack is **k3d/k3s** (`k3s/` manifests, `scripts/local-up.ps1`).
+`compose.yaml` remains for reference; local E2E and constitution gates use the
+k3s deployment (`scripts/e2e/lib/LocalRuntime.ps1`).
+
+Cloud E2E is split under `scripts/e2e/cloud/` (GCP ingest + Grafana LGTM
+query). Operator observability for cloud E2E telemetry is published via
+`monitoring/e2e-dashboard.json` and `scripts/push-e2e-dashboard.ps1`.
+
 ## Verification
 
 - Public contract package and version-link consistency validation.
 - Collector config validate for cloud and merged local config.
 - Terraform init/validate and disabled no-op plan.
-- Local five-service health validation.
+- Local five-service health validation (k3s).
 - OTLP JSON acceptance fixture proves valid metrics pass and invalid metrics
   are filtered.
+- Optional post-provision: `scripts/run-e2e-cloud.ps1` and E2E Grafana dashboard.
 
 Public contract releases use tags of the form
 `contracts/otel-ingest/v<version>`. A behavior change updates the package

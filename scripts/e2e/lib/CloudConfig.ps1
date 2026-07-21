@@ -27,9 +27,9 @@ function Get-GrafanaStackField([string]$Dir, [string]$Field) {
   try {
     $prev = $ErrorActionPreference
     $ErrorActionPreference = 'SilentlyContinue'
-    $show = terraform state show 'data.grafana_cloud_stack.platform[0]' 2>$null
+    $show = (& terraform state show 'data.grafana_cloud_stack.platform[0]' 2>&1 | Out-String)
     $ErrorActionPreference = $prev
-    if (-not $show) { return $null }
+    if ([string]::IsNullOrWhiteSpace($show)) { return $null }
     $pattern = "(?m)^\s*$([regex]::Escape($Field))\s+=\s+`"([^`"]+)`""
     $match = [regex]::Match($show, $pattern)
     if ($match.Success) {
@@ -51,6 +51,8 @@ function Resolve-CloudE2EConfig {
   $config = [ordered]@{
     CloudRunUri            = $env:CLOUD_RUN_URI
     IngestBearerToken      = $env:INGEST_BEARER_TOKEN
+    GrafanaStackUrl        = $env:GRAFANA_STACK_URL
+    GrafanaApiToken        = $env:GRAFANA_CLOUD_API_TOKEN
     GrafanaPromUrl         = $env:GRAFANA_CLOUD_PROM_URL
     GrafanaPromUser        = $env:GRAFANA_CLOUD_PROM_USER
     GrafanaLogsUrl         = $env:GRAFANA_CLOUD_LOGS_URL
@@ -63,6 +65,12 @@ function Resolve-CloudE2EConfig {
   }
   if ([string]::IsNullOrWhiteSpace($config.IngestBearerToken)) {
     $config.IngestBearerToken = Get-TfvarValue $gcpTfvars 'ingest_bearer_token'
+  }
+  if ([string]::IsNullOrWhiteSpace($config.GrafanaStackUrl)) {
+    $config.GrafanaStackUrl = Get-TerraformOutput $grafanaDir 'stack_url'
+  }
+  if ([string]::IsNullOrWhiteSpace($config.GrafanaApiToken)) {
+    $config.GrafanaApiToken = Get-TerraformOutput $grafanaDir 'producer_provisioner_token'
   }
   if ([string]::IsNullOrWhiteSpace($config.GrafanaPromUrl)) {
     $config.GrafanaPromUrl = Get-TerraformOutput $grafanaDir 'prometheus_url'
@@ -98,17 +106,25 @@ function Test-CloudE2EConfig([pscustomobject]$Config, [switch]$RequireGrafanaQue
     if ([string]::IsNullOrWhiteSpace($Config.$name)) { $missing += $name }
   }
   if ($RequireGrafanaQuery) {
-    foreach ($name in @(
-        'GrafanaPromUrl', 'GrafanaPromUser', 'GrafanaLogsUrl',
-        'GrafanaTempoUrl', 'GrafanaQueryToken'
-      )) {
-      if ([string]::IsNullOrWhiteSpace($Config.$name)) { $missing += $name }
+    $needsHttpApi = [string]::IsNullOrWhiteSpace($Config.GrafanaQueryToken)
+    if ($needsHttpApi) {
+      foreach ($name in @('GrafanaStackUrl', 'GrafanaApiToken', 'GrafanaPromUser')) {
+        if ([string]::IsNullOrWhiteSpace($Config.$name)) { $missing += $name }
+      }
+    }
+    else {
+      foreach ($name in @(
+          'GrafanaPromUrl', 'GrafanaPromUser', 'GrafanaLogsUrl',
+          'GrafanaTempoUrl', 'GrafanaQueryToken'
+        )) {
+        if ([string]::IsNullOrWhiteSpace($Config.$name)) { $missing += $name }
+      }
     }
   }
   if ($missing.Count -gt 0) {
     $hint = ''
-    if ($missing -contains 'GrafanaQueryToken') {
-      $hint = ' Re-apply infra/grafana-cloud to create e2e_query_token, or set GRAFANA_CLOUD_QUERY_TOKEN.'
+    if ($missing -contains 'GrafanaQueryToken' -or $missing -contains 'GrafanaApiToken') {
+      $hint = ' Re-apply infra/grafana-cloud to create e2e_query_token, set GRAFANA_CLOUD_QUERY_TOKEN, or rely on GRAFANA_STACK_URL + GRAFANA_CLOUD_API_TOKEN (producer_provisioner_token).'
     }
     throw ("Missing cloud E2E configuration: {0}. Set env vars or apply infra and keep local tfvars/terraform state.{1}" -f ($missing -join ', '), $hint)
   }

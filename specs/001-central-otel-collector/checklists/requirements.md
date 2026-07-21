@@ -29,5 +29,7 @@
 - [X] Public-contract package validation exists.
 - [X] Cross-signal sanitation canary exists (traces and logs; SC-004).
 - [X] Memory/load stability test exists (no OOM under sustained load; SC-003).
-- [ ] Live cloud apply requires operator credentials.
+- [X] Local E2E runs against k3s/k3d default stack (T021).
+- [X] Cloud E2E dashboard and split cloud/local suites documented (T020–T022).
+- [X] Live cloud apply verified locally; secrets remain gitignored (T013).
 

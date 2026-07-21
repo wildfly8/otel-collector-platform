@@ -26,19 +26,19 @@ output "producer_provisioner_token" {
 }
 
 output "prometheus_url" {
-  value = var.enable_stack && var.stack_id == "" ? try(data.grafana_cloud_stack.platform[0].prometheus_url, null) : null
+  value = var.enable_stack ? try(data.grafana_cloud_stack.platform[0].prometheus_url, null) : null
 }
 
 output "prometheus_user_id" {
-  value = var.enable_stack && var.stack_id == "" ? try(data.grafana_cloud_stack.platform[0].prometheus_user_id, null) : null
+  value = var.enable_stack ? try(data.grafana_cloud_stack.platform[0].prometheus_user_id, null) : null
 }
 
 output "logs_url" {
-  value = var.enable_stack && var.stack_id == "" ? try(data.grafana_cloud_stack.platform[0].logs_url, null) : null
+  value = var.enable_stack ? try(data.grafana_cloud_stack.platform[0].logs_url, null) : null
 }
 
 output "traces_url" {
-  value = var.enable_stack && var.stack_id == "" ? try(data.grafana_cloud_stack.platform[0].traces_url, null) : null
+  value = var.enable_stack ? try(data.grafana_cloud_stack.platform[0].traces_url, null) : null
 }
 
 output "e2e_query_token" {

@@ -3,7 +3,7 @@ provider "grafana" {
 }
 
 data "grafana_cloud_stack" "platform" {
-  count = var.enable_stack && var.stack_id == "" ? 1 : 0
+  count = var.enable_stack ? 1 : 0
 
   slug = var.stack_slug
 }

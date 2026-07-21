@@ -65,6 +65,21 @@ files.
 
 Never commit `.tfvars`, state, `.env`, or tokens.
 
+## Security (public repository)
+
+This repo is **public on GitHub**. Secrets must never be committed.
+
+| Asset | Where it lives | In git? |
+|-------|----------------|---------|
+| Grafana Portal / OTLP / query tokens | `infra/*/terraform.tfvars`, terraform state | **No** (`*.tfvars`, `*.tfstate*` gitignored) |
+| Cloud Run ingest bearer token | `infra/gcp/terraform.tfvars` → Secret Manager | **No** |
+| Local dev token | `local-platform-token-32-characters` in k3s manifest | **Yes** — intentional, loopback-only, not production |
+| Producer apps | pin `contracts/public/otel-ingest@1.0.1` only | Public contract only |
+
+**Checked**: only `*.tfvars.example` files are tracked; no `glc_*` tokens or live bearer secrets appear in committed sources. Terraform outputs and tfvars are read at runtime from your **local** machine only — they are not pushed to GitHub.
+
+If a secret is ever committed, **rotate it immediately** in Grafana Cloud / GCP and purge git history.
+
 ## Cloud provisioning (scripted)
 
 Create local tfvars (gitignored) and run phases after replacing placeholders:
@@ -80,6 +95,7 @@ pwsh scripts/provision-cloud.ps1 -Phase gcp-foundation # Artifact Registry + API
 pwsh scripts/provision-cloud.ps1 -Phase image          # docker build + push
 pwsh scripts/provision-cloud.ps1 -Phase gcp-runtime    # Cloud Run + secrets
 pwsh scripts/provision-cloud.ps1 -Phase rules          # platform recording/alerts
+pwsh scripts/provision-cloud.ps1 -Phase e2e-dashboard  # Grafana E2E LGTM dashboard
 pwsh scripts/provision-cloud.ps1 -Phase e2e-cloud      # Cloud Run + Grafana LGTM E2E
 
 # Or plan-only:

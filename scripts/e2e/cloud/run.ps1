@@ -21,6 +21,8 @@ if (-not $SkipGrafana) {
   & (Join-Path $PSScriptRoot 'grafana\test-lgtm-export.ps1') `
     -CloudRunUri $config.CloudRunUri `
     -IngestBearerToken $config.IngestBearerToken `
+    -GrafanaStackUrl $config.GrafanaStackUrl `
+    -GrafanaApiToken $config.GrafanaApiToken `
     -GrafanaPromUrl $config.GrafanaPromUrl `
     -GrafanaPromUser $config.GrafanaPromUser `
     -GrafanaLogsUrl $config.GrafanaLogsUrl `
